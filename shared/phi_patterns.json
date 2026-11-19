@@ -1,0 +1,18 @@
+{
+  "version": "phi-patterns-2026.11",
+  "notes": "Single source of truth for the PHI scrubber. Read at runtime by Python (dxreview.phi) and embedded at compile time by Rust (phi-scrubber). Patterns are applied in order. Use only syntax that both Python `re` and Rust `regex` accept (no look-around, no backreferences). Replacements use Rust-style ${N} group references; Python converts them.",
+  "patterns": [
+    {"kind": "EMAIL",   "regex": "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}", "replacement": "[EMAIL]"},
+    {"kind": "SSN",     "regex": "\\b\\d{3}-\\d{2}-\\d{4}\\b", "replacement": "[SSN]"},
+    {"kind": "MRN",     "regex": "(?i)\\b(MRN|medical record (?:number|no\\.?))\\s*[:#]?\\s*[A-Z0-9-]{5,12}\\b", "replacement": "${1}: [MRN]"},
+    {"kind": "PHONE",   "regex": "(?:\\+?1[-. ]?)?\\(?\\b\\d{3}\\)?[-. ]\\d{3}[-. ]\\d{4}\\b", "replacement": "[PHONE]"},
+    {"kind": "DATE",    "regex": "\\b\\d{1,2}/\\d{1,2}/\\d{2,4}\\b", "replacement": "[DATE]"},
+    {"kind": "DATE",    "regex": "\\b\\d{4}-\\d{2}-\\d{2}\\b", "replacement": "[DATE]"},
+    {"kind": "DATE",    "regex": "(?i)\\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\\.?\\s+\\d{1,2},?\\s+\\d{4}\\b", "replacement": "[DATE]"},
+    {"kind": "AGE_90_PLUS", "regex": "(?i)\\b(?:9\\d|1[0-2]\\d)(\\s*-?\\s*(?:years?|yrs?|yo|y/o))", "replacement": "90+${1}"},
+    {"kind": "ADDRESS", "regex": "\\b\\d{1,5}\\s+(?:[A-Z][a-z]+\\s+){1,3}(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Way)\\b\\.?", "replacement": "[ADDRESS]"},
+    {"kind": "ZIP",     "regex": "\\b([A-Z]{2})\\s+\\d{5}(?:-\\d{4})?\\b", "replacement": "${1} [ZIP]"},
+    {"kind": "NAME",    "regex": "\\b(?:Mr|Mrs|Ms|Miss|Dr)\\.?\\s+(?:[A-Z]\\.\\s+)?[A-Z][a-zA-Z'-]+(?:[ \\t]+[A-Z][a-zA-Z'-]+)?", "replacement": "[NAME]"},
+    {"kind": "NAME",    "regex": "\\b(Patient name|Patient|Pt|Name)\\s*:\\s*[A-Z][a-zA-Z'-]+(?:[ \\t]+[A-Z][a-zA-Z'-]*\\.?){0,3}", "replacement": "${1}: [NAME]"}
+  ]
+}

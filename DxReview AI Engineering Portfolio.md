@@ -1,14 +1,14 @@
-Candidate*\[Ram Akhmitzyanov\]*
+Candidate: Ram Akhmitzyanov
 
-RoleAI Engineer
+Role: AI Engineer
 
-Location*\[Foprt Myers, FL\]* · Remote
+Location: Fort Myers, FL · Remote
 
-Email*\[arramzis@gmail.com\]*
+Email: arramzis@gmail.com
 
-Code*\[github.com/akhmitzy/dxreview\]*
+Code: github.com/akhmitzy/dxreview
 
-AccessionDXR-2026-11
+Accession DXR-2026-11
 
 Portfolio · AI engineering for diagnostic test management
 

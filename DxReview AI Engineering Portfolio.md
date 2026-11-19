@@ -169,32 +169,8 @@ PANEL 06
 
 ## Experience
 
-*\[One or two sentences: years in software, years building with LLMs, and the domain you know best.\]*
-
-*\[2022 – now\]*
-
-### *\[Title\], \[Company\]*
-
 - *\[Shipped X with LLMs/agents; measurable outcome, e.g. hours saved, cost per request\]*
-- *\[Led or mentored: team size, what changed\]*
 - *\[Platform work: AWS, Kafka, n8n, CI/CD\]*
-
-*\[2018 – 2022\]*
-
-### *\[Title\], \[Company\]*
-
-- *\[Production system you owned end to end, with scale\]*
-- *\[Integration or healthcare-adjacent work, if any\]*
-
-*\[Earlier\]*
-
-### *\[Title\], \[Company\]*
-
-- *\[Foundation: languages, systems, Agile delivery\]*
-
-### Languages
-
-Python, Rust, Go, TypeScript/Node.js, Java/JVM, SQL
 
 ### AI
 

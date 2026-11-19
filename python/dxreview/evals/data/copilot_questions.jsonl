@@ -1,0 +1,12 @@
+{"question": "Is genetic counseling required before BRCA1/BRCA2 testing?", "expected_chunk": "LAB-GEN-001#coverage-criteria"}
+{"question": "Which CPT codes cover BRCA2 full sequence testing?", "expected_chunk": "LAB-GEN-001#codes"}
+{"question": "Does BRCA2 testing require a family history of ovarian cancer?", "expected_chunk": "LAB-GEN-001#coverage-criteria"}
+{"question": "What documentation is needed for a BRCA family history?", "expected_chunk": "LAB-GEN-001#documentation-requirements"}
+{"question": "What tumor screening results support Lynch syndrome germline testing?", "expected_chunk": "LAB-GEN-002#coverage-criteria"}
+{"question": "Is germline testing covered when MLH1 loss is explained by promoter hypermethylation?", "expected_chunk": "LAB-GEN-002#not-medically-necessary"}
+{"question": "When is CYP2C19 genotyping covered for clopidogrel?", "expected_chunk": "LAB-PGX-003#coverage-criteria"}
+{"question": "What should be documented for CYP2C19 testing?", "expected_chunk": "LAB-PGX-003#documentation-requirements"}
+{"question": "Is routine vitamin D screening of asymptomatic adults covered?", "expected_chunk": "LAB-CHEM-004#not-medically-necessary"}
+{"question": "How often can vitamin D be retested during replacement therapy?", "expected_chunk": "LAB-CHEM-004#frequency"}
+{"question": "Are twin pregnancies eligible for cell-free DNA screening?", "expected_chunk": "LAB-GEN-005#multiple-gestation"}
+{"question": "What gestational age is required for NIPT?", "expected_chunk": "LAB-GEN-005#coverage-criteria"}

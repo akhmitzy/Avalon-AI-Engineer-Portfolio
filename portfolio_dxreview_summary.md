@@ -1,6 +1,6 @@
 # DxReview portfolio: summary and interview talking points
 
-**What it is:** an agentic prior-authorization reviewer for lab and genetic tests, built for the Avalon AI Engineer role. Portfolio page: https://claude.ai/artifact/EVjF48FpvNGEtJRvUTSCCW (private until shared). Repo delivered as dxreview.zip.
+**What it is:** an agentic prior-authorization reviewer for lab and genetic tests, built for the Avalon AI Engineer role. 
 
 ## Core thesis
 The LLM (Claude via Bedrock or Anthropic) only extracts per-criterion evidence from a de-identified note, with verbatim quotes. Deterministic code makes the decision. Outcomes are APPROVE, NEEDS_INFO or CLINICAL_REVIEW. There is no automated DENY.
@@ -23,5 +23,4 @@ The LLM (Claude via Bedrock or Anthropic) only extracts per-criterion evidence f
 4. Why there is no DENY: regulations, auditability, and resistance to prompt injection.
 
 ## Still to do (owner)
-- Replace the bracketed placeholders (name, contact, GitHub, experience) on the page and in the LICENSE and the n8n credential URL.
-- Push to GitHub, run CI (Docker builds and terraform validate haven't been run yet), and run the live evals with an API key.
+- run CI (Docker builds and terraform validate haven't been run yet), and run the live evals with an API key.

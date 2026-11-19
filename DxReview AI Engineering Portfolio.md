@@ -169,8 +169,7 @@ PANEL 06
 
 ## Experience
 
-- *\[Shipped X with LLMs/agents; measurable outcome, e.g. hours saved, cost per request\]*
-- *\[Platform work: AWS, Kafka, n8n, CI/CD\]*
+Platform: AWS, Kafka, n8n, CI/CD
 
 ### AI
 

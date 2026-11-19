@@ -1,0 +1,96 @@
+{
+  "name": "DxReview - Error Handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "63b7a2ec-7bf7-520b-add0-ed58daed9bdd",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Only metadata leaves n8n. Error messages are truncated and stripped of anything\n// that looks like PHI, because upstream errors can echo request bodies.\nconst e = $json;\nconst scrub = (s) => String(s ?? '')\n  .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/g, '[EMAIL]')\n  .replace(/\\b\\d{3}-\\d{2}-\\d{4}\\b/g, '[SSN]')\n  .replace(/\\b\\d{1,2}\\/\\d{1,2}\\/\\d{2,4}\\b/g, '[DATE]')\n  .replace(/\\(?\\b\\d{3}\\)?[-. ]\\d{3}[-. ]\\d{4}\\b/g, '[PHONE]')\n  .slice(0, 300);\nreturn [{ json: {\n  text: `DxReview workflow failed: ${e.workflow?.name} / node ${e.execution?.lastNodeExecuted}`,\n  workflow_id: e.workflow?.id,\n  execution_id: e.execution?.id,\n  execution_url: e.execution?.url,\n  error: scrub(e.execution?.error?.message),\n  retry_of: e.execution?.retryOf ?? null,\n}}];"
+      },
+      "id": "16ef053c-33b6-5a2e-af03-6050dc568fa1",
+      "name": "Build Safe Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.ALERT_WEBHOOK_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "5f448c26-8d49-5df1-8ee6-b031fcd2d594",
+      "name": "Alert On-Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3
+    },
+    {
+      "parameters": {
+        "content": "## Error handler\nSet as the error workflow for Intake and Policy Re-index. Sends only workflow/execution metadata and a scrubbed, truncated error message.",
+        "height": 220,
+        "width": 520
+      },
+      "id": "67843d96-6274-5d48-be39-0605d42fbc5c",
+      "name": "Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ]
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Safe Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Safe Alert": {
+      "main": [
+        [
+          {
+            "node": "Alert On-Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

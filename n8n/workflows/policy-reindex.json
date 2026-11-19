@@ -1,0 +1,219 @@
+{
+  "name": "DxReview - Policy Re-index",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "17 3 * * *"
+            }
+          ]
+        }
+      },
+      "id": "8cbd6099-33d4-55be-a04d-552967f9ffd8",
+      "name": "Nightly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dxreview/policies-changed",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "id": "cedb8efc-c751-57bb-aebc-69dfcd412f1a",
+      "name": "Policy Repo Push",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        100
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "Git webhook secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// From a push webhook, re-index only changed policy files; from the schedule, everything.\nconst commits = $json.body?.commits ?? [];\nconst files = commits.flatMap(c => [...(c.added ?? []), ...(c.modified ?? []), ...(c.removed ?? [])]);\nconst ids = [...new Set(files.map(f => (f.match(/policies\\/data\\/([A-Z]+-[A-Z]+-\\d{3})\\.md$/) || [])[1]).filter(Boolean))];\nreturn [{ json: { policy_ids: ids.length ? ids : null } }];"
+      },
+      "id": "87d919b5-85a7-5026-991f-bf8c57a10cb9",
+      "name": "Changed Policy IDs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.DXREVIEW_API_URL }}/v1/admin/reindex",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "2848d2b5-740a-580a-8aff-0a6a42c6b8c5",
+      "name": "Reindex",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "DxReview API key header"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.reindexed_chunks }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "574553de-6770-5fe4-8474-af60d7feb981",
+      "name": "Anything Indexed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CI_DISPATCH_URL }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ event_type: 'policy-reindexed', client_payload: { policies: $json.policies } }) }}",
+        "options": {}
+      },
+      "id": "e21815fc-e90d-5729-9a02-e2d6d69f21ac",
+      "name": "Run Eval Gate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        -80
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Policy re-index\nRuns nightly and on pushes to the policy repo. After a re-index it triggers the CI eval gate, because a policy edit can change decisions.",
+        "height": 220,
+        "width": 520
+      },
+      "id": "67843d96-6274-5d48-be39-0605d42fbc5c",
+      "name": "Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ]
+    }
+  ],
+  "connections": {
+    "Nightly": {
+      "main": [
+        [
+          {
+            "node": "Changed Policy IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Policy Repo Push": {
+      "main": [
+        [
+          {
+            "node": "Changed Policy IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Changed Policy IDs": {
+      "main": [
+        [
+          {
+            "node": "Reindex",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reindex": {
+      "main": [
+        [
+          {
+            "node": "Anything Indexed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything Indexed?": {
+      "main": [
+        [
+          {
+            "node": "Run Eval Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "REPLACE_WITH_ERROR_HANDLER_WORKFLOW_ID"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

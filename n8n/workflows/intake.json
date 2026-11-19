@@ -1,0 +1,245 @@
+{
+  "name": "DxReview - Intake",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dxreview/intake",
+        "responseMode": "responseNode",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "id": "78d15a50-a3f4-5513-829f-966eee8953e0",
+      "name": "Intake Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_ME",
+          "name": "Intake shared secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate shape only. Never log or copy the note anywhere except the DxReview call.\nconst out = [];\nfor (const item of $input.all()) {\n  const b = item.json.body ?? item.json;\n  const errors = [];\n  if (!b.request_id) errors.push('request_id is required');\n  if (!/^\\d{4}[0-9A-Z]$/.test(b.cpt_code ?? '')) errors.push('cpt_code must be a 5-character CPT code');\n  if (!b.note || typeof b.note !== 'string') errors.push('note is required');\n  if (errors.length) throw new Error(errors.join('; '));\n  out.push({ json: { request_id: String(b.request_id), cpt_code: b.cpt_code, note: b.note } });\n}\nreturn out;"
+      },
+      "id": "19e711bd-7194-54d8-a080-c046233ab567",
+      "name": "Validate Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "review",
+        "requestId": "={{ $json.request_id }}",
+        "cptCode": "={{ $json.cpt_code }}",
+        "note": "={{ $json.note }}"
+      },
+      "id": "f4dbbd60-8ea3-53e5-aeba-50500516e891",
+      "name": "DxReview",
+      "type": "n8n-nodes-dxreview.dxReview",
+      "typeVersion": 1,
+      "position": [
+        440,
+        0
+      ],
+      "credentials": {
+        "dxReviewApi": {
+          "id": "REPLACE_ME",
+          "name": "DxReview API"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.PAYER_SYSTEM_URL }}/authorizations",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ request_id: $json.request_id, status: 'APPROVED', policy_id: $json.policy_id, policy_version: $json.policy_version, prompt_version: $json.prompt_version }) }}",
+        "options": {}
+      },
+      "id": "d314e217-1858-5501-a148-1ce795fe5f6d",
+      "name": "Record Approval",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        -180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.PROVIDER_PORTAL_URL }}/requests/{{ $json.request_id }}/missing-info",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ missing_criteria: $json.missing_criteria, policy_id: $json.policy_id }) }}",
+        "options": {}
+      },
+      "id": "2ac1a515-35e5-545c-8e16-6e7cf61a1e04",
+      "name": "Request Missing Info",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CLINICAL_QUEUE_URL }}/tasks",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ request_id: $json.request_id, reasons: $json.reasons, flags: $json.flags, priority: ($json.flags || []).length ? 'high' : 'normal' }) }}",
+        "options": {}
+      },
+      "id": "28799992-b21e-58ca-9e93-be06e11f4250",
+      "name": "Queue Clinical Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ request_id: $('DxReview').item.json.request_id, decision: $('DxReview').item.json.decision }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "1a72e540-195a-56cb-bb14-8f2b4094d240",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## DxReview intake\nSynchronous path for low volume. High volume goes through Kafka (`reviews.requests`) and the Go worker.\n\nSuccessful executions are not saved (`saveDataSuccessExecution: none`) so notes do not sit in n8n's database. Set the error workflow ID after importing the error handler.",
+        "height": 220,
+        "width": 520
+      },
+      "id": "67843d96-6274-5d48-be39-0605d42fbc5c",
+      "name": "Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -260
+      ]
+    }
+  ],
+  "connections": {
+    "Intake Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Request": {
+      "main": [
+        [
+          {
+            "node": "DxReview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DxReview": {
+      "main": [
+        [
+          {
+            "node": "Record Approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Request Missing Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Queue Clinical Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Approval": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Missing Info": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queue Clinical Review": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "errorWorkflow": "REPLACE_WITH_ERROR_HANDLER_WORKFLOW_ID",
+    "saveDataSuccessExecution": "none",
+    "saveManualExecutions": false
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

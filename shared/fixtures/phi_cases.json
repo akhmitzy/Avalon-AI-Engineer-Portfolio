@@ -1,0 +1,178 @@
+{
+  "cases": [
+    {
+      "name": "email",
+      "input": "Contact jane.doe@example.com for results.",
+      "expected": "Contact [EMAIL] for results.",
+      "counts": {
+        "EMAIL": 1
+      }
+    },
+    {
+      "name": "ssn",
+      "input": "SSN 123-45-6789 on file.",
+      "expected": "SSN [SSN] on file.",
+      "counts": {
+        "SSN": 1
+      }
+    },
+    {
+      "name": "mrn",
+      "input": "MRN: 00482913 admitted for workup.",
+      "expected": "MRN: [MRN] admitted for workup.",
+      "counts": {
+        "MRN": 1
+      }
+    },
+    {
+      "name": "mrn_long",
+      "input": "Medical record number #AB-99231 reviewed.",
+      "expected": "Medical record number: [MRN] reviewed.",
+      "counts": {
+        "MRN": 1
+      }
+    },
+    {
+      "name": "phone_paren",
+      "input": "Call (555) 123-4567 to schedule.",
+      "expected": "Call [PHONE] to schedule.",
+      "counts": {
+        "PHONE": 1
+      }
+    },
+    {
+      "name": "phone_dots",
+      "input": "Cell 555.987.6543, home +1 555-222-3333.",
+      "expected": "Cell [PHONE], home [PHONE].",
+      "counts": {
+        "PHONE": 2
+      }
+    },
+    {
+      "name": "date_slash",
+      "input": "DOB 04/12/1981. Seen 11/3/25.",
+      "expected": "DOB [DATE]. Seen [DATE].",
+      "counts": {
+        "DATE": 2
+      }
+    },
+    {
+      "name": "date_iso",
+      "input": "Collected 2026-10-02 per lab.",
+      "expected": "Collected [DATE] per lab.",
+      "counts": {
+        "DATE": 1
+      }
+    },
+    {
+      "name": "date_month",
+      "input": "Visit on March 4, 2025 and Sept. 30 2024.",
+      "expected": "Visit on [DATE] and [DATE].",
+      "counts": {
+        "DATE": 2
+      }
+    },
+    {
+      "name": "age_over_89",
+      "input": "93-year-old woman and a 101 yo man.",
+      "expected": "90+-year-old woman and a 90+ yo man.",
+      "counts": {
+        "AGE_90_PLUS": 2
+      }
+    },
+    {
+      "name": "age_under_90",
+      "input": "A 44-year-old woman with breast cancer.",
+      "expected": "A 44-year-old woman with breast cancer.",
+      "counts": {}
+    },
+    {
+      "name": "address",
+      "input": "Lives at 1420 Maple Grove Ave. with spouse.",
+      "expected": "Lives at [ADDRESS] with spouse.",
+      "counts": {
+        "ADDRESS": 1
+      }
+    },
+    {
+      "name": "zip",
+      "input": "Springfield, IL 62704-1234 is home.",
+      "expected": "Springfield, IL [ZIP] is home.",
+      "counts": {
+        "ZIP": 1
+      }
+    },
+    {
+      "name": "titled_name",
+      "input": "Referred by Dr. Alan Smith to Mrs. Ortega.",
+      "expected": "Referred by [NAME] to [NAME].",
+      "counts": {
+        "NAME": 2
+      }
+    },
+    {
+      "name": "labeled_name",
+      "input": "Patient: Maria Lopez is a 38 yo G2P1.",
+      "expected": "Patient: [NAME] is a 38 yo G2P1.",
+      "counts": {
+        "NAME": 1
+      }
+    },
+    {
+      "name": "labeled_name_multiline",
+      "input": "Name: Kevin O'Brien\nPt: Lee\nCPT 81162 requested.",
+      "expected": "Name: [NAME]\nPt: [NAME]\nCPT 81162 requested.",
+      "counts": {
+        "NAME": 2
+      }
+    },
+    {
+      "name": "cpt_not_zip",
+      "input": "CPT 81162 and 81225 requested; ICD-10 Z80.3.",
+      "expected": "CPT 81162 and 81225 requested; ICD-10 Z80.3.",
+      "counts": {}
+    },
+    {
+      "name": "clinical_untouched",
+      "input": "MS flare ruled out. BRCA1/BRCA2 testing requested. MSI-H tumor.",
+      "expected": "MS flare ruled out. BRCA1/BRCA2 testing requested. MSI-H tumor.",
+      "counts": {}
+    },
+    {
+      "name": "mixed",
+      "input": "Pt: John Q Public, MRN 7788123, DOB 1/2/1950, phone 555-111-2222, email jqp@mail.org, 12 Oak Dr, Austin, TX 78701.",
+      "expected": "Pt: [NAME], MRN: [MRN], DOB [DATE], phone [PHONE], email [EMAIL], [ADDRESS], Austin, TX [ZIP].",
+      "counts": {
+        "ADDRESS": 1,
+        "DATE": 1,
+        "EMAIL": 1,
+        "MRN": 1,
+        "NAME": 1,
+        "PHONE": 1,
+        "ZIP": 1
+      }
+    },
+    {
+      "name": "empty",
+      "input": "",
+      "expected": "",
+      "counts": {}
+    },
+    {
+      "name": "titled_initial",
+      "input": "Seen by Dr. A. Smith on follow-up.",
+      "expected": "Seen by [NAME] on follow-up.",
+      "counts": {
+        "NAME": 1
+      }
+    },
+    {
+      "name": "pt_middle_initial",
+      "input": "Pt: John Q Public, 52 yo.",
+      "expected": "Pt: [NAME], 52 yo.",
+      "counts": {
+        "NAME": 1
+      }
+    }
+  ]
+}

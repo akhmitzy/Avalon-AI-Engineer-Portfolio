@@ -47,4 +47,4 @@ uvicorn dxreview.api:app --port 8080
 
 ---
 
-[YOUR NAME] · [CONTACT] · [GITHUB]
+Ram Akhmitzyanov · arramzis@gmail · OK

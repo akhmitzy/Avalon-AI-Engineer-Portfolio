@@ -1,0 +1,30 @@
+{
+  "name": "@dxreview/mcp-server",
+  "version": "0.3.0",
+  "description": "MCP server exposing DxReview tools, policy resources and prompts",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test dist/test/*.test.js",
+    "start": "node dist/src/index.js"
+  },
+  "license": "SEE LICENSE IN ../../LICENSE",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3"
+  },
+  "type": "module",
+  "bin": {
+    "dxreview-mcp": "dist/src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist/src"
+  ]
+}

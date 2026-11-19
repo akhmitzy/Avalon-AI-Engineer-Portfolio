@@ -1,12 +1,12 @@
-Candidate*\[Your Name\]*
+Candidate*\[Ram Akhmitzyanov\]*
 
 RoleAI Engineer
 
-Location*\[City, ST\]* · Remote
+Location*\[Foprt Myers, FL\]* · Remote
 
-Email*\[you@email.com\]*
+Email*\[arramzis@gmail.com\]*
 
-Code*\[github.com/you/dxreview\]*
+Code*\[github.com/akhmitzy/dxreview\]*
 
 AccessionDXR-2026-11
 
